@@ -11,6 +11,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       libgl1-mesa-glx \
       libhdf5-dev \
       openmpi-bin \
+      vim \
+      unzip \
       wget && \
     rm -rf /var/lib/apt/lists/*
 
@@ -47,6 +49,8 @@ RUN conda install -y python=${python_version} && \
       bcolz \
       h5py \
       matplotlib \
+      xlrd \
+      seaborn \
       mkl \
       nose \
       notebook \
@@ -62,13 +66,19 @@ RUN conda install -y python=${python_version} && \
     pip install git+git://github.com/keras-team/keras.git && \
     conda clean -yt
 
+RUN cd /src && \
+    git checkout tags/2.2.0 && \
+    conda create -n ipykernel_py2 python=2 ipykernel
+
+RUN mkdir /home/keras/logs
+
 ADD theanorc /home/keras/.theanorc
 
 ENV PYTHONPATH='/src/:$PYTHONPATH'
 
-WORKDIR /src
+WORKDIR /home/keras
 
-EXPOSE 8888
+EXPOSE 8888 6006
 
 CMD jupyter notebook --port=8888 --ip=0.0.0.0
 
